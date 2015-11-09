@@ -25,6 +25,11 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>edu.asu.cse512.15fall</groupId>
+			<artifactId>convexHull</artifactId>
+			<version>0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
