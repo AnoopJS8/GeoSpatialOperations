@@ -260,9 +260,11 @@ public class ClosestPair {
 	public static void main(String[] args) {
 		String inputFilename = args[0];
 		String outputFilename = args[1];
-		readProperties();
 		try {
-			SparkConf conf = new SparkConf().setAppName("group20.closestPair").setMaster(sparkMasterIP);
+			readProperties();
+			GeoSpatialUtils.deleteHDFSFile(outputFilename);
+
+			SparkConf conf = new SparkConf().setAppName("ClosestPair").setMaster(sparkMasterIP);
 			JavaSparkContext context = new JavaSparkContext(conf);
 			JavaRDD<String> file = context.textFile(inputFilename);
 			JavaRDD<GeoPointPair> localClosestPairs = file.mapPartitions(LOCAL_CLOSEST_PAIR).repartition(1);

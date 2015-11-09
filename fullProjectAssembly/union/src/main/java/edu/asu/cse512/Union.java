@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -139,12 +140,14 @@ public class Union {
 				}
 			}
 
-			// Sort the output of coordinates
-			Collections.sort(listOfFinalPolygonCoords);
+			// Create a list of distinct points and sort it
+			List<Coordinate> distinctPoints = new ArrayList<Coordinate>(
+					new HashSet<Coordinate>(listOfFinalPolygonCoords));
+			Collections.sort(distinctPoints);
 
 			// Create a string representation of the coordinates
 			List<String> stringOutput = new ArrayList<String>();
-			for (Coordinate c : listOfFinalPolygonCoords) {
+			for (Coordinate c : distinctPoints) {
 				stringOutput.add(String.format("%s,%s", c.x, c.y));
 			}
 
@@ -163,9 +166,11 @@ public class Union {
 	public static void main(String[] args) {
 		String inputFilename = args[0];
 		String outputFilename = args[1];
-		readProperties();
 		try {
-			SparkConf conf = new SparkConf().setAppName("group20.union").setMaster(sparkMasterIP);
+			readProperties();
+			GeoSpatialUtils.deleteHDFSFile(outputFilename);
+
+			SparkConf conf = new SparkConf().setAppName("Union").setMaster(sparkMasterIP);
 			JavaSparkContext context = new JavaSparkContext(conf);
 			JavaRDD<String> file = context.textFile(inputFilename);
 			JavaRDD<Geometry> geometricalMap = file.mapPartitions(UNION);
