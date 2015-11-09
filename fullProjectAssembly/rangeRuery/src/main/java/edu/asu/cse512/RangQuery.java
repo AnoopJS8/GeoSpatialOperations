@@ -10,13 +10,15 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.broadcast.Broadcast;
 
 
+
 public class RangQuery implements Serializable {
 
 	private static final long serialVersionUID = -4899212954483667421L;
 	private static final Logger logger = Logger.getLogger(RangQuery.class);
 
-	public void rangeQuery(String input1, String input2, String output) {
-		SparkConf sc = new SparkConf().setAppName("RangQuery");
+	@SuppressWarnings("unchecked")
+	public void rangeQuery(String input1, String input2, String output, String sparkMasterIP) {
+		SparkConf sc = new SparkConf().setAppName("RangQuery").setMaster(sparkMasterIP);;
 		JavaSparkContext context = new JavaSparkContext(sc);
 		JavaRDD<String> file1 = context.textFile(input1);
 		JavaRDD<String> file2 = context.textFile(input2);
@@ -68,26 +70,58 @@ public class RangQuery implements Serializable {
 		final Broadcast<Rectangle> cachedWindow = context.broadcast(queryWindow.first());
 
 
-		JavaRDD<GeoPoint> result = points.filter(new Function<GeoPoint, Boolean>() {
-			private static final long serialVersionUID = -6891257309320068134L;
+		JavaRDD<String> result=points.map(new Function<GeoPoint,String>(){
+			private static final long serialVersionUID = -6730090128779842348L;
 
-			public Boolean call(GeoPoint p) {
-				//if (cachedWindow != null && cachedWindow.value() != null) {
-					//return true;
-			    //return cachedWindow.value().contains(p.getX(), p.getY()); 
-				return cachedWindow.value().containsPoints(p);
-				//} else {
-				//	return false;
-				//}
+			@Override
+			public String call(GeoPoint p) throws Exception {
+				// TODO Auto-generated method stub
+				//List<String> listIds=new ArrayList<String>();// 
+				String id=new String();
+				if(cachedWindow.value().containsPoints(p))
+				{
+					//listIds=listIds.add(String.valueOf(p.getId()));
+					//listIds.add(String.valueOf(p.getId()));
+					id=String.valueOf(p.getId());
+				}/*else
+				{
+					id=id+String.valueOf(p.getId());
+				}*/
+				//return listIds.toString();
+				return id;
 			}
-
+			
 		});
-
+		
+		
 		logger.debug(">>>> result: " + result.count());
-		GeoSpatialUtils.deleteHDFSFile(output);
-		result.coalesce(1).saveAsTextFile(output);
+		logger.debug(">>>> result: " + result.first());
+		//result=result.take()!=0;
+		//if(!result.partitions().isEmpty())
+		
+		/*if(!result.take(1).toString().contains(" "))
+			result.coalesce(1).saveAsTextFile(output);*/
+		//((JavaRDD<String>) result.coalesce(1)..takeOrdered(result.toArray().size())).saveAsTextFile(output);
+		
+		result=result.filter(RemoveSpaces);
+		((JavaRDD<String>) result.coalesce(1).takeOrdered(result.toArray().size())).saveAsTextFile(output);
 		context.close();
 	}
+	
+	
+	public final static Function<String, Boolean> RemoveSpaces = new Function<String, Boolean>() {
+
+		private static final long serialVersionUID = 7818310925945858658L;
+
+		public Boolean call(String s) {
+			if(!s.isEmpty()){
+				return true;
+			}
+			return false;
+				
+		}
+	};
+
 	/*
 	 * Main function, take two parameter as input, output
 	 * @param inputLocation
@@ -97,10 +131,15 @@ public class RangQuery implements Serializable {
     public static void main( String[] args )
     {
         //Initialize, need to remove existing in output file location.
-    	
+		GeoSpatialUtils.deleteHDFSFile(args[2]);
+
     	//Implement 
     	
+		RangQuery rangeQuery = new RangQuery();
+		rangeQuery.rangeQuery(args[0], args[1], args[2], args[3]);
+
     	//Output your result, you need to sort your result!!!
     	//And,Don't add a additional clean up step delete the new generated file...
+    	
     }
 }
