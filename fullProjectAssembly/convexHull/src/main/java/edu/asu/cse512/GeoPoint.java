@@ -93,5 +93,3 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
 		return (int) (41.0 * ((41000 * this.x()) + (1000.0 * this.y()))/1000.0);
 	}
 };
-
-
