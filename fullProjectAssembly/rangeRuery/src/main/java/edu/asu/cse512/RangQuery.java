@@ -17,8 +17,8 @@ public class RangQuery implements Serializable {
 	private static final Logger logger = Logger.getLogger(RangQuery.class);
 
 	@SuppressWarnings("unchecked")
-	public void rangeQuery(String input1, String input2, String output, String sparkMasterIP) {
-		SparkConf sc = new SparkConf().setAppName("RangQuery").setMaster(sparkMasterIP);;
+	public void rangeQuery(String input1, String input2, String output) {
+		SparkConf sc = new SparkConf().setAppName("RangQuery");
 		JavaSparkContext context = new JavaSparkContext(sc);
 		JavaRDD<String> file1 = context.textFile(input1);
 		JavaRDD<String> file2 = context.textFile(input2);
@@ -103,11 +103,21 @@ public class RangQuery implements Serializable {
 			result.coalesce(1).saveAsTextFile(output);*/
 		//((JavaRDD<String>) result.coalesce(1)..takeOrdered(result.toArray().size())).saveAsTextFile(output);
 		
-		result=result.filter(RemoveSpaces);
-		((JavaRDD<String>) result.coalesce(1).takeOrdered(result.toArray().size())).saveAsTextFile(output);
+		JavaRDD<String> filteredRdd =result.filter(RemoveSpaces);
+		filteredRdd.sortBy(new SortString(), true, 3);
+		filteredRdd.coalesce(1).saveAsTextFile(output);
+		//((JavaRDD<String>) result.coalesce(1).takeOrdered((int)result.count())).saveAsTextFile(output);
 		context.close();
 	}
 	
+	class SortString implements Function<String,String>, Serializable
+	{
+		private static final long serialVersionUID = 8225302338329281442L;
+
+		public String call(String str) throws Exception {
+			return str;
+		}
+	}
 	
 	public final static Function<String, Boolean> RemoveSpaces = new Function<String, Boolean>() {
 
@@ -136,7 +146,7 @@ public class RangQuery implements Serializable {
     	//Implement 
     	
 		RangQuery rangeQuery = new RangQuery();
-		rangeQuery.rangeQuery(args[0], args[1], args[2], args[3]);
+		rangeQuery.rangeQuery(args[0], args[1], args[2]);
 
     	//Output your result, you need to sort your result!!!
     	//And,Don't add a additional clean up step delete the new generated file...
