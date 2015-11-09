@@ -19,7 +19,6 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
 		this.id = id;
 	}
 	
-	
 	public int getId() {
 		return id;
 	}
@@ -67,10 +66,9 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
 	
 	public int compareTo(GeoPoint p) {
 		if (this.x == p.x) {
-			return (int) (this.y - p.y);
-		} else {
-			return (int)(this.x - p.x);
+			return Double.compare(this.y, p.y);
 		}
+		return Double.compare(this.x, p.x);
 	} 
 
 	@Override 
