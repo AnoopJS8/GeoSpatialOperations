@@ -14,7 +14,6 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.api.java.function.VoidFunction;
 
 public class ClosestPair {
 
@@ -119,9 +118,7 @@ public class ClosestPair {
 					GeoPoint p2 = listOfPoints.get(j);
 					double distance = GeoPoint.getDistance(p1, p2);
 					if (distance < closestPair.getDistance()) {
-						closestPair.setP(p1);
-						closestPair.setQ(p2);
-						closestPair.setDistance(distance);
+						closestPair = new GeoPointPair(p1, p2);
 					}
 				}
 			}
@@ -167,7 +164,7 @@ public class ClosestPair {
 			}
 
 			double shortestDistance = closestPair.getDistance();
-			double centerX = right.get(0).getX();
+			GeoPoint center = right.get(0);
 			List<GeoPoint> listOfClosePoints = new ArrayList<GeoPoint>();
 
 			/*
@@ -175,7 +172,7 @@ public class ClosestPair {
 			 * the difference in X
 			 */
 			for (GeoPoint point : sortedByY) {
-				if (Math.abs(centerX - point.getX()) < shortestDistance) {
+				if (GeoPoint.getDistance(center, point) < shortestDistance) {
 					listOfClosePoints.add(point);
 				}
 			}
@@ -190,14 +187,12 @@ public class ClosestPair {
 				for (int j = i + 1; j < listOfClosePoints.size(); j++) {
 					GeoPoint p2 = listOfClosePoints.get(j);
 
-					if ((p2.getY() - p1.getY()) >= shortestDistance) {
+					if (GeoPoint.getDistance(p1, p2) >= shortestDistance) {
 						break;
 					} else {
 						double distance = GeoPoint.getDistance(p1, p2);
 						if (distance < closestPair.getDistance()) {
-							closestPair.setP(p1);
-							closestPair.setQ(p2);
-							closestPair.setDistance(distance);
+							closestPair = new GeoPointPair(p1, p2);
 							shortestDistance = distance;
 						}
 					}
@@ -207,6 +202,9 @@ public class ClosestPair {
 		}
 	}
 
+	/**
+	 * This function finds the local pairs in the partitions
+	 */
 	private static final FlatMapFunction<Iterator<String>, GeoPointPair> LOCAL_CLOSEST_PAIR = new FlatMapFunction<Iterator<String>, GeoPointPair>() {
 
 		private static final long serialVersionUID = -2199101645275752678L;
@@ -228,6 +226,9 @@ public class ClosestPair {
 		}
 	};
 
+	/**
+	 * This function finds the final pair out of the local pair
+	 */
 	private static final FlatMapFunction<Iterator<GeoPointPair>, GeoPoint> FINAL_CLOSEST_PAIR = new FlatMapFunction<Iterator<GeoPointPair>, GeoPoint>() {
 
 		private static final long serialVersionUID = -5793551749782404012L;
@@ -265,10 +266,6 @@ public class ClosestPair {
 			JavaSparkContext context = new JavaSparkContext(conf);
 			JavaRDD<String> file = context.textFile(inputFilename);
 			JavaRDD<GeoPointPair> localClosestPairs = file.mapPartitions(LOCAL_CLOSEST_PAIR).repartition(1);
-			List<GeoPointPair> p = localClosestPairs.toArray();
-			for (GeoPointPair geoPointPair : p) {
-				System.out.println(geoPointPair);
-			}
 			JavaRDD<GeoPoint> finalClosestPairPoints = localClosestPairs.mapPartitions(FINAL_CLOSEST_PAIR);
 			finalClosestPairPoints.coalesce(1).saveAsTextFile(outputFilename);
 			context.close();

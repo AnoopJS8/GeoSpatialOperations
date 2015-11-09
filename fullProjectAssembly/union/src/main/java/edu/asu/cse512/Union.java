@@ -23,6 +23,9 @@ public class Union {
 
 	private static String sparkMasterIP;
 
+	/**
+	 * This method reads the properties from the config file
+	 */
 	public static void readProperties() {
 		Properties prop = new Properties();
 		InputStream input = null;
