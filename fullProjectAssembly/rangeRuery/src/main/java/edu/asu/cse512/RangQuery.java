@@ -17,7 +17,6 @@ public class RangQuery implements Serializable {
 	private static final long serialVersionUID = -4899212954483667421L;
 	private static final Logger logger = Logger.getLogger(RangQuery.class);
 
-	@SuppressWarnings("unchecked")
 	public void rangeQuery(String input1, String input2, String output) {
 		SparkConf sc = new SparkConf().setAppName("RangQuery");
 		JavaSparkContext context = new JavaSparkContext(sc);
@@ -132,7 +131,7 @@ public class RangQuery implements Serializable {
 */
 		
 
-	}
+	//}
 	
 	public final static Function<String, Boolean> RemoveSpaces = new Function<String, Boolean>() {
 
