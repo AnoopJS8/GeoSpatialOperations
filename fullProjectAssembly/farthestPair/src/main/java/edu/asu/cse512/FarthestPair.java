@@ -31,6 +31,14 @@ public class FarthestPair implements Serializable
 		    return new GeoPoint(inputLine);
 		}
 	}
+	class SortPoints implements Function<GeoPoint,GeoPoint>, Serializable
+	{
+		private static final long serialVersionUID = 8225302338329281442L;
+
+		public GeoPoint call(GeoPoint geoPoint) throws Exception {
+			return geoPoint;
+		}
+	}
 	public boolean operation(String sparkMasterIP, String inputFileName, String outputFileName){
 		boolean success=false;
 		SparkConf sc = new SparkConf().setAppName("group20.operations")
@@ -59,7 +67,7 @@ public class FarthestPair implements Serializable
 							return p.getDistance() > q.getDistance() ? p : q;
 						}});
 			GeoSpatialUtils.deleteHDFSFile(outputFileName);		    
-			logger.debug(farthestPairs);
+			resultGeoPoints.saveAsTextFile(outputFileName);
 		}
 		context.close();
 		return success;

@@ -28,10 +28,9 @@ public class Join  implements Serializable
 	 */
 	private static final long serialVersionUID = 1150784842364424486L;
 
-	public void spatialJoinMain(String inputFile1, String inputFile2, String outputFile, String inputType, String sparkMasterIP){
+	public void spatialJoinMain(String inputFile1, String inputFile2, String outputFile, String inputType){
 
-		SparkConf conf = new SparkConf().setAppName("group20.operations")
-				.setMaster(sparkMasterIP);
+		SparkConf conf = new SparkConf().setAppName("Join");
 
 		JavaSparkContext context = new JavaSparkContext(conf);
 		JavaRDD<Rectangle> queryRectangle = context.textFile(inputFile2).map(createRectangle);
@@ -152,6 +151,9 @@ public class Join  implements Serializable
     public static void main( String[] args )
     {
         //Initialize, need to remove existing in output file location.
+    	GeoSpatialUtils.deleteHDFSFile(args[2]);
+    	Join join = new Join();
+    	join.spatialJoinMain(args[0], args[1], args[2], args[3]);
     	
     	//Implement 
     	
