@@ -5,9 +5,6 @@ import java.io.Serializable;
 
 public class Rectangle extends Rectangle2D.Double implements Serializable{
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3231946817586993827L;
 	private int id;
 	double x1;
@@ -52,9 +49,7 @@ public class Rectangle extends Rectangle2D.Double implements Serializable{
 		this.y1 = y1;
 		this.y2 = y2;
 	}
-	
-
-	
+		
 	public boolean containsPoints(GeoPoint point) {
 
 		double x = point.getX();
