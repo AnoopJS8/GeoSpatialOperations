@@ -1,6 +1,7 @@
 package edu.asu.cse512;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
@@ -104,19 +105,33 @@ public class RangQuery implements Serializable {
 		//((JavaRDD<String>) result.coalesce(1)..takeOrdered(result.toArray().size())).saveAsTextFile(output);
 		
 		JavaRDD<String> filteredRdd =result.filter(RemoveSpaces);
-		filteredRdd.sortBy(new SortString(), true, 3);
+		//filteredRdd.sortBy(new SortString(), true, 3);
 		filteredRdd.coalesce(1).saveAsTextFile(output);
 		//((JavaRDD<String>) result.coalesce(1).takeOrdered((int)result.count())).saveAsTextFile(output);
+		filteredRdd.coalesce(1).takeOrdered((int)filteredRdd.count(), new Comparator<String>() {
+
+			@Override
+			public int compare(String o1, String o2) {
+				// TODO Auto-generated method stub
+				return o1.compareTo(o2);
+			}
+		});
+		filteredRdd.saveAsTextFile(output);
 		context.close();
 	}
 	
-	class SortString implements Function<String,String>, Serializable
+/*	class SortString implements Function<String,String>, Serializable
 	{
 		private static final long serialVersionUID = 8225302338329281442L;
 
-		public String call(String str) throws Exception {
-			return str;
+		@Override
+		public String call(String v1) throws Exception {
+			// TODO Auto-generated method stub
+			return null;
 		}
+*/
+		
+
 	}
 	
 	public final static Function<String, Boolean> RemoveSpaces = new Function<String, Boolean>() {
