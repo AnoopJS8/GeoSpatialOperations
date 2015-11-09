@@ -7,11 +7,12 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
 	private static final long serialVersionUID = 4106187863140078576L;
 	private final double x;
 	private final double y;
-	private int id;
+	private final int id;
 
 	public GeoPoint(double x, double y) {
 		this.x = x;
 		this.y = y;
+		this.id = 0;
 	}
 	public GeoPoint(int id, double x, double y) {
 		this.x = x;
@@ -22,13 +23,12 @@ public class GeoPoint implements Comparable<GeoPoint>, Serializable {
 	public int getId() {
 		return id;
 	}
-	public void setId(int id) {
-		this.id = id;
-	}
+
 	public GeoPoint(String str){
 		String splitStr[] = str.split(","); 
 		this.x = Double.parseDouble(splitStr[0]);
 		this.y = Double.parseDouble(splitStr[1]);
+		this.id = 0;
 	}
 
 	public double getDistance(GeoPoint p){
