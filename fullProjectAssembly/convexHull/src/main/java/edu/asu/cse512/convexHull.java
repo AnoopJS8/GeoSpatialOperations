@@ -70,10 +70,10 @@ public class convexHull implements Serializable
 				boolean	useSecond = false;
 
 				// Handle the special case of vertical points, where slope would be infinite.
-				if (firstPoint.x() == secondPoint.x())
+				if (firstPoint.getX() == secondPoint.getX())
 				{
 					// Only use a vertical pairs of points if there are 3 vertical points in a row.
-					if (firstPoint.x() == thirdPoint.x())
+					if (firstPoint.getX() == thirdPoint.getX())
 						useSecond = true;
 				}
 				// Only check slopes if firstSecond isn't infinite
