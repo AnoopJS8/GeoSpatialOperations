@@ -96,7 +96,7 @@ public class convexHull implements Serializable
 	{
 		// Upper hull.
 
-		JavaRDD<GeoPoint> upperGeoPoints = geoPoints.sortBy(new SortPoints(), true, 1);
+		JavaRDD<GeoPoint> upperGeoPoints = geoPoints.sortBy(new SortPoints(), true, 3);
 		JavaRDD<GeoPoint> newGeoPoints;
 
 		do {
@@ -106,7 +106,7 @@ public class convexHull implements Serializable
 
 		// lower hull.
 
-		JavaRDD<GeoPoint> lowerGeoPoints = geoPoints.sortBy(new SortPoints(), false, 1);
+		JavaRDD<GeoPoint> lowerGeoPoints = geoPoints.sortBy(new SortPoints(), false, 3);
 		do {
 			newGeoPoints = lowerGeoPoints;
 			lowerGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
