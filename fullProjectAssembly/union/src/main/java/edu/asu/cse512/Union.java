@@ -24,37 +24,6 @@ public class Union {
 
 	private static String sparkMasterIP;
 
-	/**
-	 * This method reads the properties from the config file
-	 */
-	public static void readProperties() {
-		Properties prop = new Properties();
-		InputStream input = null;
-
-		try {
-
-			String configFilename = "config.properties";
-			input = Union.class.getClassLoader().getResourceAsStream(configFilename);
-
-			if (input == null) {
-				System.exit(1);
-			}
-			prop.load(input);
-			sparkMasterIP = prop.getProperty("master");
-
-		} catch (IOException ex) {
-			System.exit(1);
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					System.exit(1);
-				}
-			}
-		}
-	}
-
 	private static final FlatMapFunction<Iterator<String>, Geometry> UNION = new FlatMapFunction<Iterator<String>, Geometry>() {
 
 		private static final long serialVersionUID = -1700297168222641028L;
@@ -167,10 +136,9 @@ public class Union {
 		String inputFilename = args[0];
 		String outputFilename = args[1];
 		try {
-			readProperties();
 			GeoSpatialUtils.deleteHDFSFile(outputFilename);
 
-			SparkConf conf = new SparkConf().setAppName("Union").setMaster(sparkMasterIP);
+			SparkConf conf = new SparkConf().setAppName("Union");
 			JavaSparkContext context = new JavaSparkContext(conf);
 			JavaRDD<String> file = context.textFile(inputFilename);
 			JavaRDD<Geometry> geometricalMap = file.mapPartitions(UNION);

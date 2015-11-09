@@ -1,53 +1,17 @@
 package edu.asu.cse512;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.FlatMapFunction;
 
 public class ClosestPair {
-
-	private static final Logger logger = Logger.getLogger(ClosestPair.class);
-	private static String sparkMasterIP;
-
-	public static void readProperties() {
-		Properties prop = new Properties();
-		InputStream input = null;
-
-		try {
-
-			String configFilename = "config.properties";
-			input = ClosestPair.class.getClassLoader().getResourceAsStream(configFilename);
-
-			if (input == null) {
-				System.exit(1);
-			}
-			prop.load(input);
-			sparkMasterIP = prop.getProperty("master");
-
-		} catch (IOException ex) {
-			System.exit(1);
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					logger.error("Could not read properties");
-					System.exit(1);
-				}
-			}
-		}
-	}
 
 	/**
 	 * This method sorts the list of points by X Coordinates
@@ -102,7 +66,7 @@ public class ClosestPair {
 	 * @param listOfPoints
 	 * @return
 	 */
-	public static GeoPointPair bruteForce(List<GeoPoint> listOfPoints) {
+	public static GeoPointPair recursionBaseCase(List<GeoPoint> listOfPoints) {
 		int numOfPoints = listOfPoints.size();
 		if (numOfPoints < 2) {
 			return null;
@@ -126,13 +90,13 @@ public class ClosestPair {
 		}
 	}
 
-	public static GeoPointPair divideAndConquerBase(List<GeoPoint> listOfPoints) {
+	public static GeoPointPair findClosestPair(List<GeoPoint> listOfPoints) {
 		List<GeoPoint> sortedByX = sortByXcoordinate(listOfPoints);
 		List<GeoPoint> sortedByY = sortByYcoordinate(listOfPoints);
-		return divideAndConquerRecursionMethod(sortedByX, sortedByY);
+		return closestPairRecursion(sortedByX, sortedByY);
 	}
 
-	private static GeoPointPair divideAndConquerRecursionMethod(List<GeoPoint> sortedByX, List<GeoPoint> sortedByY) {
+	private static GeoPointPair closestPairRecursion(List<GeoPoint> sortedByX, List<GeoPoint> sortedByY) {
 		int numOfPoints = sortedByX.size();
 
 		/*
@@ -140,17 +104,17 @@ public class ClosestPair {
 		 * calculate the shortest pair
 		 */
 		if (numOfPoints <= 3) {
-			return bruteForce(sortedByX);
+			return recursionBaseCase(sortedByX);
 		} else {
 			int pivot = numOfPoints >>> 1;
 			List<GeoPoint> left = sortedByX.subList(0, pivot);
 			List<GeoPoint> right = sortedByX.subList(pivot, numOfPoints);
 
 			// Recurse on Left partition
-			GeoPointPair closestPairInLeft = divideAndConquerRecursionMethod(left, sortByYcoordinate(left));
+			GeoPointPair closestPairInLeft = closestPairRecursion(left, sortByYcoordinate(left));
 
 			// Recurse on Right partition
-			GeoPointPair closestPairInRight = divideAndConquerRecursionMethod(right, sortByYcoordinate(right));
+			GeoPointPair closestPairInRight = closestPairRecursion(right, sortByYcoordinate(right));
 
 			/*
 			 * Assign the closer of the closest pair in left and right
@@ -220,7 +184,7 @@ public class ClosestPair {
 			}
 			// Find local closest pairs
 			List<GeoPointPair> listOfPairs = new ArrayList<GeoPointPair>();
-			GeoPointPair localClosestPair = divideAndConquerBase(points);
+			GeoPointPair localClosestPair = findClosestPair(points);
 			listOfPairs.add(localClosestPair);
 			return listOfPairs;
 		}
@@ -241,10 +205,22 @@ public class ClosestPair {
 				points.add(pair.getQ());
 			}
 			// Find global closest pairs from local ones
-			GeoPointPair closestPair = divideAndConquerBase(points);
+			GeoPointPair closestPair = findClosestPair(points);
 			List<GeoPoint> finalPoints = new ArrayList<GeoPoint>();
 			finalPoints.add(closestPair.getP());
 			finalPoints.add(closestPair.getQ());
+			Collections.sort(finalPoints, new Comparator<GeoPoint>() {
+				@Override
+				public int compare(GeoPoint p1, GeoPoint p2) {
+					if (p1.getX() < p2.getX()) {
+						return -1;
+					} else if (p1.getX() > p2.getX()) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			});
 			return finalPoints;
 		}
 	};
@@ -261,10 +237,9 @@ public class ClosestPair {
 		String inputFilename = args[0];
 		String outputFilename = args[1];
 		try {
-			readProperties();
 			GeoSpatialUtils.deleteHDFSFile(outputFilename);
 
-			SparkConf conf = new SparkConf().setAppName("ClosestPair").setMaster(sparkMasterIP);
+			SparkConf conf = new SparkConf().setAppName("ClosestPair");
 			JavaSparkContext context = new JavaSparkContext(conf);
 			JavaRDD<String> file = context.textFile(inputFilename);
 			JavaRDD<GeoPointPair> localClosestPairs = file.mapPartitions(LOCAL_CLOSEST_PAIR).repartition(1);
