@@ -8,8 +8,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.broadcast.Broadcast;
 
-
-
 public class RangQuery implements Serializable {
 
 	private static final long serialVersionUID = -7347795517571950L;

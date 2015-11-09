@@ -60,7 +60,6 @@ public class Rectangle implements Comparable<Rectangle>, Serializable {
 		this.y1 = y1;
 		this.y2 = y2;
 	}
-
 	public boolean containsPoints(GeoPoint point) {
 
 		double x = point.getX();
