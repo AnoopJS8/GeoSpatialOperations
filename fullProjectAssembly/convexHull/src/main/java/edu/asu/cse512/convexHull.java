@@ -104,25 +104,9 @@ public class convexHull implements Serializable
 			upperGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
 		} while (newGeoPoints.count() != upperGeoPoints.count());
 
-		// Must coalesce the points and run the algorithm again to combine calculated hulls.
-		newGeoPoints = upperGeoPoints.coalesce(1, true);
-		upperGeoPoints = newGeoPoints;
-		do {
-			newGeoPoints = upperGeoPoints;
-			upperGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
-		} while (newGeoPoints.count() != upperGeoPoints.count());
-
 		// lower hull.
 
 		JavaRDD<GeoPoint> lowerGeoPoints = geoPoints.sortBy(new SortPoints(), false, 1);
-		do {
-			newGeoPoints = lowerGeoPoints;
-			lowerGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
-		} while (newGeoPoints.count() != lowerGeoPoints.count());
-
-		// Must coalesce the points and run the algorithm again to combine calculated hulls.
-		newGeoPoints = lowerGeoPoints.coalesce(1, true);
-		lowerGeoPoints = newGeoPoints;
 		do {
 			newGeoPoints = lowerGeoPoints;
 			lowerGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
