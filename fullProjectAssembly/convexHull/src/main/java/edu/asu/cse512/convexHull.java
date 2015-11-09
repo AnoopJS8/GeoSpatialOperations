@@ -63,10 +63,6 @@ public class convexHull implements Serializable
 				double firstThirdSlope = firstPoint.getSlope(thirdPoint);
 				double firstSecondSlope = firstPoint.getSlope(secondPoint);
 
-				//System.out.println("CalculateHull:  1st= " + firstPoint + " 2nd= " + secondPoint +
-				//           " 3rd= " + thirdPoint);
-				//System.out.printf("            1-3slope= %10.2f  1-2slope= %10.2f%n", firstThirdSlope, firstSecondSlope );
-
 				boolean	useSecond = false;
 
 				// Handle the special case of vertical points, where slope would be infinite.
@@ -86,16 +82,11 @@ public class convexHull implements Serializable
 					newGeoPoints.add(secondPoint);
 					firstPoint = secondPoint;
 				}
-
 				secondPoint = thirdPoint;
 			}
 
 			// Last point is always on hull. 
 			newGeoPoints.add(secondPoint);
-
-			//System.out.println("CalculateHull: count = " + newGeoPoints.size());
-			//for (GeoPoint geoPoint : newGeoPoints)
-			//	System.out.println("    point: " + geoPoint);
 
 			return newGeoPoints;
 		}
@@ -103,74 +94,23 @@ public class convexHull implements Serializable
 
 	public HullResult calculateConvexHull(JavaRDD<GeoPoint> geoPoints)
 	{
-		List<GeoPoint> outputPoints;
-
 		// Upper hull.
-		JavaRDD<GeoPoint> sortedGeoPoints = geoPoints.sortBy(new SortPoints(), true, 1);
 
-		//outputPoints = sortedGeoPoints.collect();
-		//for (GeoPoint geopoint : outputPoints) {
-		//  System.out.println("upperSortedGeoPoints: " + geopoint.toString());
-		//}
-
-		JavaRDD<GeoPoint> upperGeoPoints = sortedGeoPoints;
+		JavaRDD<GeoPoint> upperGeoPoints = geoPoints.sortBy(new SortPoints(), true, 1);
 		JavaRDD<GeoPoint> newGeoPoints;
 
 		do {
 			newGeoPoints = upperGeoPoints;
 			upperGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
-
-			//System.out.printf("Strip Iteration: newCnt = %d, newerCnt= %d%n",newGeoPoints.count(), upperGeoPoints.count());
 		} while (newGeoPoints.count() != upperGeoPoints.count());
 
-		// Coalesce the upper hull so we can repeat the algorithm on the combined set.
-		//JavaRDD<GeoPoint> coalescedGeoPoints = upperGeoPoints.coalesce(1,true);
-
-		//do {
-		//	newGeoPoints = coalescedGeoPoints;
-		//	coalescedGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
-
-		//System.out.printf("Strip Iteration: newCnt = %d, newerCnt= %d%n",newGeoPoints.count(), upperGeoPoints.count());
-		//} while (newGeoPoints.count() != coalescedGeoPoints.count());
-		//upperGeoPoints = coalescedGeoPoints;
-
-
-		//outputPoints = upperGeoPoints.collect();
-		//for (GeoPoint geopointslope : outputPoints) {
-		//    System.out.println("upperHullGeoSlopePoints: " + geopointslope.toString());
-		//}
-
 		// lower hull.
-		JavaRDD<GeoPoint> lowerSortedGeoPoints = geoPoints.sortBy(new SortPoints(), false, 1);
 
-		//outputPoints = lowerSortedGeoPoints.collect();
-		//for (GeoPoint geopoint : outputPoints) {
-		//    System.out.println("lowerSortedGeoPoints: " + geopoint.toString());
-		//}
-
-		JavaRDD<GeoPoint> lowerGeoPoints = lowerSortedGeoPoints;
+		JavaRDD<GeoPoint> lowerGeoPoints = geoPoints.sortBy(new SortPoints(), false, 1);
 		do {
 			newGeoPoints = lowerGeoPoints;
 			lowerGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
-
-			//System.out.printf("Strip Iteration: newCnt = %d, newerCnt= %d%n",newGeoPoints.count(), lowerGeoPoints.count());
 		} while (newGeoPoints.count() != lowerGeoPoints.count());
-
-		// Coalesce the upper hull so we can repeat the algorithm on the combined set.
-		//coalescedGeoPoints = lowerGeoPoints.coalesce(1,true);
-
-		//do {
-		//	newGeoPoints = coalescedGeoPoints;
-		//	coalescedGeoPoints = newGeoPoints.mapPartitions(new CalculateHull());
-
-		//System.out.printf("Strip Iteration: newCnt = %d, newerCnt= %d%n",newGeoPoints.count(), upperGeoPoints.count());
-		//} while (newGeoPoints.count() != coalescedGeoPoints.count());
-		//lowerGeoPoints = coalescedGeoPoints;
-
-		//outputPoints = lowerGeoPoints.collect();
-		//for (GeoPoint geopointslope : outputPoints) {
-		//    System.out.println("lowerHullGeoSlopePoints: " + geopointslope.toString());
-		//}
 
 		return new HullResult(upperGeoPoints, lowerGeoPoints);
 	}
@@ -183,11 +123,6 @@ public class convexHull implements Serializable
 
 		JavaRDD<String> inputStrings = jsc.textFile(inputFilePath);
 
-		//List<String> outputStrings = inputStrings.collect();
-		//for (String outString : outputStrings) {
-		//    System.out.println("convexHullInputStrings: " + outString);
-		//}
-
 		JavaRDD<GeoPoint> geoPoints = inputStrings.map(new ParsePoints()); 
 		HullResult convexHullResult = calculateConvexHull(geoPoints);
 
@@ -195,33 +130,12 @@ public class convexHull implements Serializable
 		JavaRDD<GeoPoint> resultGeoPoints = convexHullResult.upperHull().union(convexHullResult.lowerHull()).distinct(1).sortBy(new SortPoints(), true, 1);
 
 		GeoSpatialUtils.deleteHDFSFile(outputFilePath);
-
-		List<GeoPoint> outputPoints = resultGeoPoints.collect();
-		for (GeoPoint geopoint : outputPoints) {
-			System.out.println("convexHullResultPoints: " + geopoint.toString());
-		}
-
 		resultGeoPoints.saveAsTextFile(outputFilePath);  
 
 		jsc.close();
 	}
 
-	/*
-	 * Main function, take two parameter as input, output
-	 * @param inputLocation
-	 * @param outputLocation
-	 * 
-	 */
-
 	public static void main(String[] args) {
-
-		//Initialize, need to remove existing in output file location.
-
-		//Implement 
-
-		//Output your result, you need to sort your result!!!
-		//And,Don't add a additional clean up step delete the new generated file...
-
 		new convexHull().operation(args[0], args[1]);
 	}
 }
