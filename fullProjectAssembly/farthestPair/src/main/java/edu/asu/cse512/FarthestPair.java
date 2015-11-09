@@ -1,8 +1,9 @@
 package edu.asu.cse512;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -20,7 +21,6 @@ import scala.Tuple2;
 public class FarthestPair implements Serializable
 {	
 	private static final long serialVersionUID = 196768568656874181L;
-	private static final Logger logger = Logger.getLogger(FarthestPair.class);
 	class ParsePoints implements Function<String, GeoPoint>, Serializable
 	{
 		private static final long serialVersionUID = -3885195256936448019L;
@@ -31,15 +31,18 @@ public class FarthestPair implements Serializable
 		    return new GeoPoint(inputLine);
 		}
 	}
-	public boolean operation(String sparkMasterIP, String inputFileName, String outputFileName){
-		boolean success=false;
-		SparkConf sc = new SparkConf().setAppName("group20.operations")
-				.setMaster(sparkMasterIP);
+	class SortPoints implements Function<GeoPoint,GeoPoint>, Serializable
+	{
+		private static final long serialVersionUID = 8225302338329281442L;
+
+		public GeoPoint call(GeoPoint geoPoint) throws Exception {
+			return geoPoint;
+		}
+	}
+	public void operation(String inputFileName, String outputFileName){
+		SparkConf sc = new SparkConf().setAppName("FarthestPair");
 		JavaSparkContext context = new JavaSparkContext(sc);
 		JavaRDD<String> inputFileRDD = context.textFile(inputFileName);
-		if(logger.isDebugEnabled()){
-			logger.debug("inputFile RDD: "+inputFileRDD.count());
-		}
 		JavaRDD<GeoPoint> geoPoints = inputFileRDD.map(new ParsePoints()); 
 		convexHull gch=new convexHull();
 		HullResult convexHullResult = gch.calculateConvexHull(geoPoints);
@@ -58,11 +61,17 @@ public class FarthestPair implements Serializable
 						public GeoPointPair call(GeoPointPair p, GeoPointPair q) {
 							return p.getDistance() > q.getDistance() ? p : q;
 						}});
-			GeoSpatialUtils.deleteHDFSFile(outputFileName);		    
-			logger.debug(farthestPairs);
+			GeoPoint p = farthestPairs.getP();
+			GeoPoint q = farthestPairs.getQ();
+			List<GeoPoint> geopoints= new ArrayList<GeoPoint>();
+			geopoints.add(p);
+			geopoints.add(q);
+			JavaRDD<GeoPoint> geoPointsRDD= context.parallelize(geopoints);
+			JavaRDD<GeoPoint> sortedGeoPointsRDD = geoPointsRDD.sortBy(new SortPoints(), true, 1);
+				    
+			sortedGeoPointsRDD.saveAsTextFile(outputFileName);
 		}
 		context.close();
-		return success;
 	}
 	
 	/*
@@ -74,9 +83,11 @@ public class FarthestPair implements Serializable
     public static void main( String[] args )
     {
         //Initialize, need to remove existing in output file location.
-    	
+    	GeoSpatialUtils.deleteHDFSFile(args[1]);	
+  	
     	//Implement 
-    	
+    	FarthestPair fp = new FarthestPair();
+    	fp.operation(args[0],args[1]);
     	//Output your result, you need to sort your result!!!
     	//And,Don't add a additional clean up step delete the new generated file...
     }
