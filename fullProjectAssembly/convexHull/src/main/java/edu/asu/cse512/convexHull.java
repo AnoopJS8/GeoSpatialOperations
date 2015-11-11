@@ -118,7 +118,7 @@ public class convexHull implements Serializable
 
 	public void operation(String inputFilePath, String outputFilePath)
 	{
-		SparkConf sc = new SparkConf().setAppName("GeometryConvexHull");
+		SparkConf sc = new SparkConf().setAppName("Group20-ConvexHull");
 		JavaSparkContext jsc = new JavaSparkContext(sc);
 
 		JavaRDD<String> inputStrings = jsc.textFile(inputFilePath);

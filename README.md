@@ -27,7 +27,7 @@ I strongly every one use different account to commit to your group project. So t
 	--class edu.asu.cse512.ClosestPair \
 	--master spark://192.168.42.201:7077  \
 	--jars /home/vageeshb/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/convexHull-0.1.jar \
-	~/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/closetPair-0.1.jar hdfs://192.168.42.201:54310/data/ClosestPairTestData.csv hdfs://192.168.42.201:54310/output/closest
+	~/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/closestPair-0.1.jar hdfs://192.168.42.201:54310/data/ClosestPairTestData.csv hdfs://192.168.42.201:54310/output/closest
 
 ```
 
@@ -64,12 +64,6 @@ I strongly every one use different account to commit to your group project. So t
 	--class edu.asu.cse512.Join \
 	--master spark://192.168.42.201:7077  \
 	--jars /home/vageeshb/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/convexHull-0.1.jar \
-	~/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/joinQuery-0.1.jar <input1> \
-	<input2> hdfs://192.168.42.201:54310/output/joinPoint point
-./spark-submit \
-	--class edu.asu.cse512.Join \
-	--master spark://192.168.42.201:7077  \
-	--jars /home/vageeshb/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/convexHull-0.1.jar \
 	~/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/joinQuery-0.1.jar hdfs://192.168.42.201:54310/data/RangeQueryTestData.csv \
 	hdfs://192.168.42.201:54310/data/JoinQueryRectangle.csv hdfs://192.168.42.201:54310/output/joinPoint point
 ```
@@ -77,10 +71,10 @@ I strongly every one use different account to commit to your group project. So t
 * Spatial Range
 ```
 ./spark-submit \
-	--class edu.asu.cse512.RangQuery \
+	--class edu.asu.cse512.RangeQuery \
 	--master spark://192.168.42.201:7077  \
 	--jars /home/vageeshb/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/convexHull-0.1.jar \
-	~/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/rangeRuery-0.1.jar hdfs://192.168.42.201:54310/data/RangeQueryTestData.csv \
+	~/workspace/awesome-hexta-geospatial/fullProjectAssembly/target/rangeQuery-0.1.jar hdfs://192.168.42.201:54310/data/RangeQueryTestData.csv \
 	hdfs://192.168.42.201:54310/data/RangeQueryRectangle.csv hdfs://192.168.42.201:54310/output/range
 
 ```

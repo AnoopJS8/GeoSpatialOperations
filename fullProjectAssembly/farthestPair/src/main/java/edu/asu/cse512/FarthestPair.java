@@ -40,7 +40,7 @@ public class FarthestPair implements Serializable
 		}
 	}
 	public void operation(String inputFileName, String outputFileName){
-		SparkConf sc = new SparkConf().setAppName("FarthestPair");
+		SparkConf sc = new SparkConf().setAppName("Group20-FarthestPair");
 		JavaSparkContext context = new JavaSparkContext(sc);
 		JavaRDD<String> inputFileRDD = context.textFile(inputFileName);
 		JavaRDD<GeoPoint> geoPoints = inputFileRDD.map(new ParsePoints()); 

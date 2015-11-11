@@ -30,7 +30,7 @@ public class Join implements Serializable {
 
 	public void spatialJoinMain(String inputFile1, String inputFile2, String outputFile, String inputType) {
 
-		SparkConf conf = new SparkConf().setAppName("Join");
+		SparkConf conf = new SparkConf().setAppName("Group20-Join");
 
 		JavaSparkContext context = new JavaSparkContext(conf);
 		JavaRDD<Rectangle> queryRectangle = context.textFile(inputFile2).map(createRectangle);

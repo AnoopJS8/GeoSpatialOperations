@@ -8,12 +8,12 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.broadcast.Broadcast;
 
-public class RangQuery implements Serializable {
+public class RangeQuery implements Serializable {
 
 	private static final long serialVersionUID = -7347795517571950L;
 
 	public void rangeQuery(String input1, String input2, String output) {
-		SparkConf sc = new SparkConf().setAppName("RangQuery");
+		SparkConf sc = new SparkConf().setAppName("Group20-RangeQuery");
 		JavaSparkContext context = new JavaSparkContext(sc);
 		JavaRDD<String> file1 = context.textFile(input1);
 		JavaRDD<String> file2 = context.textFile(input2);
@@ -107,7 +107,7 @@ public class RangQuery implements Serializable {
 
 		//Implement 
 
-		RangQuery rangeQuery = new RangQuery();
+		RangeQuery rangeQuery = new RangeQuery();
 		rangeQuery.rangeQuery(args[0], args[1], args[2]);
 
 		//Output your result, you need to sort your result!!!

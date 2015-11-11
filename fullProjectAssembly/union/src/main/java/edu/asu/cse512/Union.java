@@ -138,7 +138,7 @@ public class Union {
 		try {
 			GeoSpatialUtils.deleteHDFSFile(outputFilename);
 
-			SparkConf conf = new SparkConf().setAppName("Union");
+			SparkConf conf = new SparkConf().setAppName("Group20-Union");
 			JavaSparkContext context = new JavaSparkContext(conf);
 			JavaRDD<String> file = context.textFile(inputFilename);
 			JavaRDD<Geometry> geometricalMap = file.mapPartitions(UNION);

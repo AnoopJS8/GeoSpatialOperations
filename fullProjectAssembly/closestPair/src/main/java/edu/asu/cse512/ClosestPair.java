@@ -239,7 +239,7 @@ public class ClosestPair {
 		try {
 			GeoSpatialUtils.deleteHDFSFile(outputFilename);
 
-			SparkConf conf = new SparkConf().setAppName("ClosestPair");
+			SparkConf conf = new SparkConf().setAppName("Group20-ClosestPair");
 			JavaSparkContext context = new JavaSparkContext(conf);
 			JavaRDD<String> file = context.textFile(inputFilename);
 			JavaRDD<GeoPointPair> localClosestPairs = file.mapPartitions(LOCAL_CLOSEST_PAIR).repartition(1);
