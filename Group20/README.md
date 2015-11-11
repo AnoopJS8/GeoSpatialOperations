@@ -12,7 +12,7 @@ Rectangle Definition: BottomLeft, TopRight
 
 ## Dependant JARs ##
 * convexHull-0.1.jar 	-> This JAR has common utility functions used in other jars
-* jts-1.13.jar 		-> This JAR has topology suite package, used for cascaded polygon algorithm
+* jts.jar 		-> This JAR has topology suite package, used for cascaded polygon algorithm
 
 ## Run commands for the operations ##
 
@@ -23,7 +23,7 @@ __Note__: --jars flag requires absolute path of the dependant JARs. Please subst
 ./spark-submit \
 	--class edu.asu.cse512.Union \
 	--master <Spark Master IP>  \
-	--jars  convexHull-0.1.jar,jts-1.13.jar \
+	--jars  convexHull-0.1.jar,jts.jar \
 	union-0.1.jar hdfs://<HDFS Master IP>/inputFile hdfs://<HDFS Master IP>/outpuFile
 
 ```
