@@ -79,8 +79,8 @@
 		<module>union</module>
 		<module>convexHull</module>
 		<module>farthestPair</module>
-		<module>closestPair</module>
-		<module>rangeQuery</module>
+		<module>closetPair</module>
+		<module>rangeRuery</module>
 		<module>joinQuery</module>
 		<module>spatialAggregation</module>
 	</modules>
