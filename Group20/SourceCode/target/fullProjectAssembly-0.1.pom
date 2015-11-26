@@ -82,5 +82,6 @@
 		<module>closestPair</module>
 		<module>rangeQuery</module>
 		<module>joinQuery</module>
+		<module>spatialAggregation</module>
 	</modules>
 </project>
