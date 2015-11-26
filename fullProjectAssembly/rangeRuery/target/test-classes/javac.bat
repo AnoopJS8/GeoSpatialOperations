@@ -1,0 +1,1 @@
+cmd.exe /X /C ""C:\Program Files (x86)\Java\jdk1.7.0_79\jre\..\bin\javac.exe" @F:/ASU_Projects/DDS/awesome-hexta-geospatial/fullProjectAssembly/rangeRuery/target/test-classes/org.codehaus.plexus.compiler.javac.JavacCompiler244227775502500010arguments"
