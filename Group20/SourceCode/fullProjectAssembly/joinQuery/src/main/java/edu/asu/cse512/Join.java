@@ -69,8 +69,8 @@ public class Join implements Serializable {
 				while (iterator != null && iterator.hasNext()) {
 					temp = temp + "," + String.valueOf(iterator.next());
 				}
-				if (iterator == null) {
-					temp = temp + ", NULL";
+				if (count.size() == 0) {
+					temp = temp + ",NULL";
 				}
 				return temp;
 			}
@@ -90,17 +90,35 @@ public class Join implements Serializable {
 				List<Integer> count = new ArrayList<Integer>();
 				List<Rectangle> inputRectangles = (ArrayList<Rectangle>) broadCastRectangles.getValue();
 				for (Rectangle inputRectangle : inputRectangles) {
-					if (queryRectangle.containsRectangle(inputRectangle)) {
+					if (queryRectangle.containsPoints(new GeoPoint(inputRectangle.x1,inputRectangle.y1)) 
+							|| queryRectangle.containsPoints(new GeoPoint(inputRectangle.x2,inputRectangle.y1))
+							|| queryRectangle.containsPoints(new GeoPoint(inputRectangle.x1,inputRectangle.y2))
+							|| queryRectangle.containsPoints(new GeoPoint(inputRectangle.x2,inputRectangle.y2))
+							|| inputRectangle.containsPoints(new GeoPoint(queryRectangle.x2,queryRectangle.y1))
+							|| inputRectangle.containsPoints(new GeoPoint(queryRectangle.x1,queryRectangle.y2))
+							|| inputRectangle.containsPoints(new GeoPoint(queryRectangle.x2,queryRectangle.y2))
+							|| inputRectangle.containsPoints(new GeoPoint(queryRectangle.x2,queryRectangle.y1))
+							) {
 						count.add(inputRectangle.getId());
+					}
+					else {
+						count.add(999999999);
 					}
 				}
 				Collections.sort(count);
+				
 				Iterator<Integer> iterator = count.iterator();
 				while (iterator != null && iterator.hasNext()) {
-					temp = temp + "," + String.valueOf(iterator.next());
+					Integer t = iterator.next();
+					if(t == 999999999) {
+						temp += ",";
+					}
+					else {
+						temp = temp + "," + String.valueOf(t);
+					}
 				}
-				if (iterator == null) {
-					temp = temp + ", NULL";
+				if (iterator == null || count.size() == 0) {
+					temp += ",NULL";
 				}
 				return temp;
 			}

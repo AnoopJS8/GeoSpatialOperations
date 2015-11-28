@@ -11,8 +11,8 @@ public class GeoSpatialUtils{
 			Configuration hadoopcfg = new Configuration();
 			hadoopcfg.set("fs.hdfs.impl",org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
 			hadoopcfg.set("fs.file.impl",org.apache.hadoop.fs.LocalFileSystem.class.getName());
-			FileSystem  hdfs = FileSystem.get(URI.create("hdfs://master:54310"), hadoopcfg);
-			hdfs.delete(new Path(fileName), true);
+//			FileSystem  hdfs = FileSystem.get(URI.create("hdfs://master:54310"), hadoopcfg);
+//			hdfs.delete(new Path(fileName), true);
 		} 
 		catch (Exception ex) {
 			ex.printStackTrace();
