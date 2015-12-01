@@ -9,6 +9,7 @@ Rectangle Definition: BottomLeft, TopRight
 * joinQuery-0.1.jar
 * rangeQuery-0.1.jar
 * union-0.1.jar
+* spatialAggregation-0.1.jar
 
 ## Dependant JARs ##
 * convexHull-0.1.jar 	-> This JAR has common utility functions used in other jars
@@ -86,5 +87,14 @@ __Note__: --jars flag requires absolute path of the dependant JARs. Please subst
 
 ```
 
+* Spatial Aggregation
+```
+./spark-submit \
+	--class edu.asu.cse512.aggregation \
+	--master <Spark Master IP>  \
+	--jars convexHull-0.1.jar \
+	spatialAggregation-0.1.jar hdfs://<HDFS Master IP>/inputFile1 \
+	hdfs://<HDFS Master IP>/inputFile2 hdfs://<HDFS Master IP>/outputFile rectangle
+```
 
 
